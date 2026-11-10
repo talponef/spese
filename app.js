@@ -1,11 +1,13 @@
 const $=s=>document.querySelector(s),V=$('#v'),SH=$('#sh'),K='spese-dati';
 const FR={w1:['Ogni settimana',7,'d'],w2:['Ogni 2 settimane',14,'d'],w4:['Ogni 4 settimane',28,'d'],m1:['Ogni mese',1,'m'],m2:['Ogni 2 mesi',2,'m'],m3:['Ogni 3 mesi',3,'m'],m6:['Ogni 6 mesi',6,'m'],y1:['Ogni anno',12,'m']};
-const C0=[['e','Spesa','🛒','#d6568c'],['e','Casa','🏠','#4f93c8'],['e','Auto','🚗','#6b7a99'],['e','Ristoranti','🍴','#3aa88a'],['e','Svago','🍸','#e8a33d'],['e','Regali','🎁','#b58a9a'],['e','Salute','🌡️','#d9534f'],['e','Vestiti','👕','#9b59b6'],['e','Telefono','📞','#8e7cc3'],['e','Sport','⚽','#2aa5a5'],['e','Animali','🐱','#5aa469'],['e','Igiene','🧴','#5a7fa8'],['e','Taxi','🚕','#d4a017'],['e','Trasporti','🚆','#e57373'],['e','Bollette','🧾','#8d6e63'],['i','Stipendio','💶','#2f7d63'],['i','Risparmi','🐷','#e6a1b0'],['i','Altre entrate','💰','#7fb069']];
+const C0=[['e','Spesa','🛒','#d6568c'],['e','Casa','🏠','#4f93c8'],['e','Auto','🚗','#6b7a99'],['e','Ristoranti','🍴','#3aa88a'],['e','Svago','🍸','#e8a33d'],['e','Regali','🎁','#b58a9a'],['e','Salute','🌡️','#d9534f'],['e','Vestiti','👕','#9b59b6'],['e','Telefono','📞','#8e7cc3'],['e','Sport','⚽','#2aa5a5'],['e','Animali','🐱','#5aa469'],['e','Igiene','🧴','#5a7fa8'],['e','Trasporti','🚆','#e57373'],['e','Bollette','🧾','#8d6e63'],['i','Stipendio','💶','#2f7d63'],['i','Risparmi','🐷','#e6a1b0'],['i','Altre entrate','💰','#7fb069']];
 const uid=()=>Math.random().toString(36).slice(2,9);
-const def=()=>({cats:C0.map(([t,n,e,col])=>({id:uid(),t,n,e,col})),tx:[],subs:[],acc:['Contanti','Carta'],st:{day:15,carry:true}});
+const def=()=>({v:2,cats:C0.map(([t,n,e,col])=>({id:uid(),t,n,e,col})),tx:[],subs:[],acc:['Contanti','Carta'],st:{day:15,carry:true}});
 let D,S,tab='home',off=0;
 try{D=JSON.parse(localStorage.getItem(K))}catch(e){}
 D=D||def();
+if((D.v||1)<2)D=(D.tx.length||D.subs.length)?Object.assign(D,{v:2}):def();
+const theme=()=>{document.documentElement.dataset.t=D.st.dark?'dark':'light'};
 const save=()=>{try{localStorage.setItem(K,JSON.stringify(D))}catch(e){}};
 const cat=id=>D.cats.find(c=>c.id===id);
 const E=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
@@ -37,12 +39,12 @@ function runSubs(){
 const hdr=r=>`<div class="per"><button data-a="o" data-v="-1" aria-label="Periodo precedente">‹</button><b>${dfmt(r.s)} – ${dfmt(r.e)}</b><button data-a="o" data-v="1" ${off>=0?'disabled':''} aria-label="Periodo successivo">›</button></div>`;
 
 function home(){
-  const r=calc(),cs=D.cats.filter(c=>c.t==='e'),L=2*Math.PI*80;let o=0;
-  const sg=Object.entries(r.by).map(([id,v])=>{const l=v/r.exp*L,x=`<circle cx="100" cy="100" r="80" fill="none" stroke="${cat(id).col}" stroke-width="26" stroke-dasharray="${l} ${L-l}" stroke-dashoffset="${-o}" transform="rotate(-90 100 100)"/>`;o+=l;return x}).join('');
-  const P=[[1,1],[1,2],[1,3],[1,4],[2,1],[2,4],[3,1],[3,4],[4,1],[4,4]];
-  const it=cs.map((c,i)=>{const[rw,cl]=i<10?P[i]:[5+((i-10)/4|0),(i-10)%4+1];
-    return `<button class="ci" data-a="cat" data-v="${c.id}" style="grid-area:${rw}/${cl}"><span class="ic" style="--c:${c.col}">${c.e}</span><span>${E(c.n)}</span><em>${r.by[c.id]?fm(r.by[c.id]):'&nbsp;'}</em></button>`}).join('');
-  return hdr(r)+`<div class="grid"><div class="dn" style="grid-area:2/2/5/4"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="80" fill="none" stroke="var(--bd)" stroke-width="26"/>${sg}</svg><div class="mid"><b>${fm(r.car+r.inc-r.exp)}</b><span class="po">${fm(r.inc)}</span><span class="ne">${fm(r.exp)}</span></div></div>${it}</div><div class="bar"><button class="e" data-a="add" data-v="e">− Spesa</button><button class="i" data-a="add" data-v="i">+ Entrata</button></div>`;
+  const r=calc(),cs=D.cats.filter(c=>c.t==='e'),L=2*Math.PI*75;let o=0;
+  const sg=Object.entries(r.by).map(([id,v])=>{const l=v/r.exp*L,x=`<circle cx="100" cy="100" r="75" fill="none" stroke="${cat(id).col}" stroke-width="38" stroke-dasharray="${l} ${L-l}" stroke-dashoffset="${-o}" transform="rotate(-90 100 100)"/>`;o+=l;return x}).join('');
+  const P=[[1,1],[1,2],[1,3],[1,4],[2,1],[2,4],[3,1],[3,4],[4,1],[4,4],[5,1],[5,2],[5,3],[5,4]];
+  const it=cs.map((c,i)=>{const[rw,cl]=i<14?P[i]:[6+((i-14)/4|0),(i-14)%4+1];
+    return `<button class="ci" data-a="cat" data-v="${c.id}" style="grid-area:${rw}/${cl}"><span class="ic" style="--c:${c.col}">${c.e}</span><span>${E(c.n)}</span><em>${r.by[c.id]?fm(r.by[c.id]):''}</em></button>`}).join('');
+  return hdr(r)+`<div class="grid"><div class="dn"><svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="75" fill="none" stroke="var(--bd)" stroke-width="38"/>${sg}</svg><div class="mid"><span class="po">${fm(r.inc)}</span><span class="ne">${fm(r.exp)}</span><b>${fm(r.inc-r.exp)}</b></div></div>${it}</div><button class="sal" data-a="t" data-v="list">Saldo ${fm(r.car+r.inc-r.exp)}</button><div class="bar"><button class="e" data-a="add" data-v="e" aria-label="Nuova spesa">−</button><button class="i" data-a="add" data-v="i" aria-label="Nuova entrata">+</button></div>`;
 }
 function list(){
   const r=calc();
@@ -58,7 +60,7 @@ function subs(){
 }
 function more(){
   const cr=t=>D.cats.filter(c=>c.t===t).map(c=>`<button class="row" data-a="cs" data-v="${c.id}"><span class="ic" style="--c:${c.col}">${c.e}</span><span class="g">${E(c.n)}</span></button>`).join('');
-  return `<h2>Mese contabile</h2><label>Il periodo inizia il giorno<select id="sd">${Array.from({length:28},(_,i)=>`<option ${D.st.day===i+1?'selected':''}>${i+1}</option>`).join('')}</select></label><label class="ck"><input type="checkbox" id="cr" ${D.st.carry?'checked':''}> Riporta il saldo dal periodo precedente</label><h2>Categorie di spesa</h2>${cr('e')}<button class="btn" data-a="cs" data-t="e">Nuova categoria di spesa</button><h2>Categorie di entrata</h2>${cr('i')}<button class="btn" data-a="cs" data-t="i">Nuova categoria di entrata</button><h2>Backup</h2><button class="btn" data-a="ex">Esporta backup (JSON)</button><button class="btn" data-a="csv">Esporta per Excel (CSV)</button><button class="btn" data-a="im">Importa backup</button><input type="file" id="im" accept=".json,application/json" hidden>`;
+  return `<h2>Mese contabile</h2><label>Il periodo inizia il giorno<select id="sd">${Array.from({length:28},(_,i)=>`<option ${D.st.day===i+1?'selected':''}>${i+1}</option>`).join('')}</select></label><label class="ck"><input type="checkbox" id="dk" ${D.st.dark?'checked':''}> Tema scuro</label><label class="ck"><input type="checkbox" id="cr" ${D.st.carry?'checked':''}> Riporta il saldo dal periodo precedente</label><h2>Categorie di spesa</h2>${cr('e')}<button class="btn" data-a="cs" data-t="e">Nuova categoria di spesa</button><h2>Categorie di entrata</h2>${cr('i')}<button class="btn" data-a="cs" data-t="i">Nuova categoria di entrata</button><h2>Backup</h2><button class="btn" data-a="ex">Esporta backup (JSON)</button><button class="btn" data-a="csv">Esporta per Excel (CSV)</button><button class="btn" data-a="im">Importa backup</button><input type="file" id="im" accept=".json,application/json" hidden>`;
 }
 function render(){
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===tab));
@@ -151,10 +153,11 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{
   const i=e.target;
   if(i.id==='sd'){D.st.day=+i.value;save();off=0;render()}
+  if(i.id==='dk'){D.st.dark=i.checked;save();theme()}
   if(i.id==='cr'){D.st.carry=i.checked;save()}
   if(i.id==='im')imp(i.files[0]);
 });
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&SH.hidden){runSubs();render()}});
-runSubs();render();
+theme();runSubs();render();
 try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
