@@ -9,68 +9,18 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Spese">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#183c34">
-<style>
-  :root {
-    --sfondo: #f4eee1; --testo: #1c2a26; --tenue: #66746f; --accento: #183c34; --bordo: #d9d1bd;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root { --sfondo: #14201d; --testo: #f1ece0; --tenue: #9aa8a2; --accento: #7fc4ad; --bordo: #2c3d38; }
-  }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--sfondo); color: var(--testo);
-    font: 17px/1.5 -apple-system, system-ui, sans-serif; }
-  main { max-width: 480px; margin: 0 auto;
-    padding: calc(env(safe-area-inset-top, 0px) + 28px) 22px calc(env(safe-area-inset-bottom, 0px) + 28px); }
-  h1 { font-size: 2rem; margin: 0 0 4px; letter-spacing: -0.02em; }
-  p.sotto { margin: 0 0 28px; color: var(--tenue); }
-  .riga { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--bordo); }
-  .riga span:last-child { font-weight: 600; text-align: right; }
-  button { margin-top: 28px; width: 100%; padding: 16px; font: inherit; font-weight: 600;
-    color: var(--sfondo); background: var(--accento); border: 0; border-radius: 12px; }
-  button:active { opacity: .8; }
-  button:focus-visible { outline: 3px solid var(--accento); outline-offset: 3px; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main>
-  <h1>Spese</h1>
-  <p class="sotto">Pagina di prova: se vedi tutto "sì", l'installazione funziona.</p>
-
-  <div class="riga"><span>Aperta come app</span><span id="standalone">…</span></div>
-  <div class="riga"><span>Funziona offline</span><span id="offline">…</span></div>
-  <div class="riga"><span>Prove salvate sul telefono</span><span id="conteggio">0</span></div>
-
-  <button id="aggiungi">Salva una prova</button>
-</main>
-<script>
-  // Aperta dalla schermata Home (e non da Safari)?
-  const standalone = window.navigator.standalone === true || matchMedia('(display-mode: standalone)').matches;
-  document.getElementById('standalone').textContent = standalone ? 'sì' : 'no (apri dall\'icona in Home)';
-
-  // Service worker (serve per l'offline)
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => navigator.serviceWorker.ready)
-      .then(() => { document.getElementById('offline').textContent = 'sì'; })
-      .catch(() => { document.getElementById('offline').textContent = 'no'; });
-  } else {
-    document.getElementById('offline').textContent = 'no';
-  }
-
-  // Test di salvataggio dati (la vera app userà IndexedDB)
-  const chiave = 'spese-prova';
-  const mostra = () => {
-    let n = 0;
-    try { n = Number(localStorage.getItem(chiave)) || 0; } catch (e) {}
-    document.getElementById('conteggio').textContent = n;
-  };
-  document.getElementById('aggiungi').addEventListener('click', () => {
-    try { localStorage.setItem(chiave, String((Number(localStorage.getItem(chiave)) || 0) + 1)); } catch (e) {}
-    mostra();
-  });
-  mostra();
-</script>
+<main id="v"></main>
+<nav id="nav">
+<button data-a="t" data-v="home">Home</button>
+<button data-a="t" data-v="list">Elenco</button>
+<button data-a="t" data-v="subs">Abbonamenti</button>
+<button data-a="t" data-v="more">Altro</button>
+</nav>
+<div id="sh" hidden></div>
+<script src="app.js"></script>
 </body>
 </html>
