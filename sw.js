@@ -1,5 +1,5 @@
 // Cambia questo numero a ogni aggiornamento dei file, così l'app scarica la versione nuova
-const VERSIONE = 'spese-v3';
+const VERSIONE = 'spese-v5';
 const FILE = ['./', './index.html', './style.css', './app.js', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
