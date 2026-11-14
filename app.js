@@ -27,20 +27,20 @@ if(t.type=='inc'){if(v!='sat')i+=t.a}else if(t.type=='exp'){if(v=='all'?(t.acc==
 const sal=v=='main'?(S.carry?bal('main',p.n):i-e-top):v=='sat'?bal('sat',p.n):(S.carry?bal('main',p.n)+bal('sat',p.n):i-e);return{e,i,bc,sal}}
 const catOf=t=>t.type=='top'?{e:'🔁',n:'Ricarica Satispay'}:(t.type=='inc'?S.inc:S.cats).find(c=>c.id==t.cat)||{e:'❓',n:'?'};
 const sg=n=>(n>=0?'':'−')+eur(Math.abs(n));
-const LIM=8;
-function chart(st){const tot=st.e,L=S.cats.filter(c=>st.bc[c.id]).sort((a,b)=>st.bc[b.id]-st.bc[a.id]);let ac=0;
-const bg=tot>0?'conic-gradient('+L.map(c=>{const s=ac/tot*100;ac+=st.bc[c.id];return `${c.c} ${s}% ${ac/tot*100}%`}).join(',')+')':'var(--ln)';
-const rest=L.slice(5).reduce((s,c)=>s+st.bc[c.id],0);
-return `<div class=pie><div class=donut style="background:${bg}"><b>${eur(tot)}</b></div><div class=leg>${tot>0?L.slice(0,5).map(c=>`<div><i style="background:${c.c}"></i>${c.e} ${esc(c.n)}<b>${Math.round(st.bc[c.id]/tot*100)}%</b></div>`).join('')+(rest?`<div><i style="background:#999"></i>Altre<b>${Math.round(rest/tot*100)}%</b></div>`:''):'Nessuna spesa in questo periodo.'}</div></div>`}
-function gridCats(st){const m=S.cats.length>LIM,vis=m?S.cats.slice(0,LIM-1):S.cats;return vis.map(c=>`<button data-x="cat:${c.id}"><i style="background:${c.c}33">${c.e}</i>${esc(c.n)}<b style="color:var(--tx)">${st.bc[c.id]?eur(st.bc[c.id]):''}</b></button>`).join('')+(m?`<button data-x="cat:${S.cats[LIM-1].id}"><i style="background:#90a4ae33">⋯</i>Altre</button>`:'')}
-function home(){const p=per(ui.off),v=ui.view,st=stats(v,p),hasInc=S.tx.some(t=>t.type=='inc'&&t.date>=p.s&&t.date<p.n);
-return `<div class=seg>${[['main','Principale'],['sat','Satispay'],['all','Tutto']].map(([k,l])=>`<button data-x="view:${k}" class="${v==k?'on':''}">${l}</button>`).join('')}</div>
-<div class=pn><button data-x="off:-1" ${ui.off<=-12?'disabled':''}>‹</button><b>${lab(p)}</b><button data-x="off:1" ${ui.off>=1?'disabled':''}>›</button></div>
-${!hasInc&&v!='sat'&&ui.off==0?`<button class=warn data-x="sal">⚠️ Stipendio non ancora inserito per questo periodo. Tocca per aggiungerlo.</button>`:''}
-<div class=ctr><span>Entrate<b class=pos>${eur(st.i)}</b></span><span>Uscite<b class=neg>${eur(st.e)}</b></span><span>Differenza<b>${sg(st.i-st.e)}</b></span></div>
-${chart(st)}<div class=grid>${gridCats(st)}</div>
-<div class=sal><div><small style="color:var(--mu)">Saldo</small><br><b class="${st.sal<0?'neg':''}" style="font-size:22px">${sg(st.sal)}</b></div><div class=bt><button style="background:#d9534f" data-x="new:exp">−</button><button style="background:#1f8a70" data-x="new:inc">+</button></div></div>`}
-function rowT(t,a){const c=catOf(t),d=a?delta(t,a):(t.type=='inc'?t.a:-t.a);return `<div class=r data-x="edit:${t.id}"><span style="font-size:24px">${c.e}</span><div>${esc(t.note||c.n)}<small>${t.date.split('-').reverse().join('/')} · ${ACC[t.acc]}${t.to?' → '+ACC[t.to]:''}</small></div><b class="${t.type=='top'&&!a?'':d<0?'neg':'pos'}">${t.type=='top'&&!a?'↔ '+eur(t.a):sg(d)}</b></div>`}
+const IC={cibo:'<path d="M5 9h14l-1.5 10h-11zM8 9l3-5M16 9l-3-5"/>',casa:'<path d="M3 11l9-7 9 7M6 10v10h12V10M10 20v-6h4v6"/>',trasporti:'<path d="M4 15v-4l2-5h12l2 5v4zM4 15v3M20 15v3M6 11h12M7 13h.01M17 13h.01"/>',salute:'<rect x="5" y="5" width="14" height="14" rx="3"/><path d="M12 8v8M8 12h8"/>',svago:'<path d="M5 5h14l-7 8zM12 13v7M8 20h8"/>',abbigliamento:'<path d="M8 4l-5 4 3 3 2-1v10h8V10l2 1 3-3-5-4c-1 2-5 2-8 0z"/>',regali:'<path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7C8 7 7 3 10 3s2 4 2 4zm0 0c4 0 5-4 2-4s-2 4-2 4z"/>',bollette:'<path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10c1 1 1 3 1 3h6s0-2 1-3a6 6 0 0 0-4-10z"/>',ristoranti:'<path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-3 2-3 8 0 9"/>',caffe:'<path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5zM16 10h2a2 2 0 0 1 0 4h-2M8 3v3M12 3v3"/>',pulizie:'<path d="M8 10h8v11H8zM10 10V6h4v4M14 6h3M19 5h.01M19 8h.01"/>',sport:'<circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10zM12 3v4M16 10l5-2M14.5 15l3 4M9.5 15l-3 4M8 10L3 8"/>',persona:'<path d="M9 3h6v5H9zM8 8h8v13H8zM12 12v5"/>',altro:'<path d="M4 8l8-4 8 4v9l-8 4-8-4zM4 8l8 4 8-4M12 12v9"/>',viaggi:'<path d="M3 13l18-8-6 15-3-6zM12 14l9-9"/>',assicurazione:'<path d="M12 3l8 3v6c0 5-4 8-8 9-4-1-8-4-8-9V6z"/>',stip:'<rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M16 14h2"/>',altre:'<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-1-1.5-5-1.5-5 .5 0 2.5 5 1.5 5 4 0 2-4 2-5 .5M12 6.5v11"/>',more:'<path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3"/>'};
+const ico=c=>c.em||!IC[c.id]?`<span class=em>${c.e}</span>`:`<svg viewBox="0 0 24 24" fill="none" stroke="${c.c||'currentColor'}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${IC[c.id]}</svg>`;
+const POS=['1/1','1/2','1/3','1/4','2/1','2/4','3/1','3/4','4/1','4/4','5/1','5/2','5/3','5/4'];
+function home(){const p=per(ui.off),v=ui.view,st=stats(v,p),tot=st.e,hasInc=S.tx.some(t=>t.type=='inc'&&t.date>=p.s&&t.date<p.n);
+const m=S.cats.length>14,vis=m?S.cats.slice(0,13):S.cats;let ac=0;const L=S.cats.filter(c=>st.bc[c.id]);
+const bg=tot>0?'conic-gradient('+L.map(c=>{const s=ac/tot*100;ac+=st.bc[c.id];return `${c.c} ${s}% ${ac/tot*100}%`}).join(',')+')':'#aaa';
+const cl=(c,i,more)=>`<button class=cl style="grid-area:${POS[i]}" data-x="cat:${c.id}"><span class=ib>${more?`<svg viewBox="0 0 24 24" fill="none" stroke="#90a4ae" stroke-width="1.6" stroke-linecap="round">${IC.more}</svg>`:ico(c)}</span><small>${!more&&tot>0&&st.bc[c.id]?Math.round(st.bc[c.id]/tot*100)+'%':''}</small></button>`;
+const nb=o=>ui.off+o>=-12&&ui.off+o<=1?`<button data-x="off:${o}" class=ps>${lab(per(ui.off+o))}</button>`:'<span class=ps></span>';
+return `<div class=home><div class=hd><b>Spese</b><select data-p="@view">${[['all','Tutti i conti'],['main','Conto principale'],['sat','Satispay']].map(([k,l])=>`<option value=${k} ${v==k?'selected':''}>${l}</option>`).join('')}</select></div>
+<div class=pr>${nb(-1)}<b class=pc>${lab(p)}</b>${nb(1)}</div>
+${!hasInc&&v!='sat'&&ui.off==0?`<button class=warn data-x="sal">⚠️ Stipendio non ancora inserito. Tocca per aggiungerlo.</button>`:''}
+<div class=wh>${vis.map((c,i)=>cl(c,i)).join('')}${m?cl(S.cats[13],13,1):''}<div class=rw><button class=ring data-x=pie style="background:${bg}"><span class=hole><small>Uscite</small><b>${eur(tot)}</b></span></button></div></div>
+<div class=sb>Saldo <b class="${st.sal<0?'neg':''}">${sg(st.sal)}</b></div><div class=pm><button class=mn data-x="new:exp">−</button><button class=pl data-x="new:inc">+</button></div></div>`}
+function rowT(t,a){const c=catOf(t),d=a?delta(t,a):(t.type=='inc'?t.a:-t.a);return `<div class=r data-x="edit:${t.id}"><span class=ib>${ico(c)}</span><div>${esc(t.note||c.n)}<small>${t.date.split('-').reverse().join('/')} · ${ACC[t.acc]}${t.to?' → '+ACC[t.to]:''}</small></div><b class="${t.type=='top'&&!a?'':d<0?'neg':'pos'}">${t.type=='top'&&!a?'↔ '+eur(t.a):sg(d)}</b></div>`}
 function list(){const since=per(-(ui.flt-1)).s,L=S.tx.filter(t=>t.date>=since).reverse();
 return `<h2>Movimenti</h2><select data-p="@flt" data-num>${[[1,'Periodo corrente'],[3,'Ultimi 3 mesi'],[6,'Ultimi 6 mesi'],[12,'Ultimi 12 mesi']].map(([k,l])=>`<option value=${k} ${ui.flt==k?'selected':''}>${l}</option>`).join('')}</select>
 <div class=card>${L.map(t=>rowT(t)).join('')||'Nessun movimento. Tocca + o − in Home per aggiungerne uno.'}</div>`}
@@ -49,11 +49,11 @@ return `<h2>Conti</h2><p class=help>Tocca un conto per vedere i movimenti. I sal
 function rec(){const f=ui.rf,L=S.rec.filter(r=>f=='all'||(f=='pp'?r.via:r.acc==f));
 return `<h2>Abbonamenti e ricorrenze</h2><p class=help>Si registrano da soli ogni volta che apri l'app, alla data giusta. Ogni voce esce dal conto scelto. "PayPal" è solo un filtro: l'importo scende comunque dal conto.</p>
 <div class=seg style="flex-wrap:wrap">${[['all','Tutti'],['main','Principale'],['sat','Satispay'],['pp','PayPal']].map(([k,l])=>`<button data-x="rf:${k}" class="${f==k?'on':''}">${l}</button>`).join('')}</div>
-<div class=card>${L.map(r=>`<div class=r data-x="rec:${r.id}"><span style="font-size:24px">${(S.cats.find(c=>c.id==r.cat)||{e:'🔁'}).e}</span><div>${esc(r.n)}<small>${ACC[r.acc]}${r.to?' → '+ACC[r.to]:''}${r.via?' · PayPal':''} · ${r.f=='m'?'ogni mese il '+r.d:'ogni '+['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'][r.d]}</small></div><b>${eur(r.a)}</b></div>`).join('')||'Nessuna voce.'}</div><button class=pri style="width:100%" data-x="rec:new">+ Nuova ricorrenza</button>`}
+<div class=card>${L.map(r=>`<div class=r data-x="rec:${r.id}"><span class=ib>${ico(S.cats.find(c=>c.id==r.cat)||{e:'🔁'})}</span><div>${esc(r.n)}<small>${ACC[r.acc]}${r.to?' → '+ACC[r.to]:''}${r.via?' · PayPal':''} · ${r.f=='m'?'ogni mese il '+r.d:'ogni '+['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'][r.d]}</small></div><b>${eur(r.a)}</b></div>`).join('')||'Nessuna voce.'}</div><button class=pri style="width:100%" data-x="rec:new">+ Nuova ricorrenza</button>`}
 function catEd(k,t){return `<details><summary>${t}</summary>${S[k].map((c,i)=>`<div class=ce><input data-p="${k}.${i}.e" value="${c.e}"><input data-p="${k}.${i}.n" value="${esc(c.n)}"><input type=color data-p="${k}.${i}.c" value="${c.c||'#90a4ae'}"><button data-x="catup:${k}:${i}">▲</button><button data-x="catdel:${k}:${i}">🗑</button></div>`).join('')}<button style="margin-top:8px" data-x="catadd:${k}">+ Aggiungi</button></details>`}
 function altro(){return `<h2>Altro</h2><div class=card style="display:grid;gap:8px">
-<label>Giorno di inizio del mese (1-28)<input type=number min=1 max=28 data-p=sd data-num value=${S.sd}></label>
-<label>Ricarica Satispay: importo massimo (€)<input type=number data-p=target data-num value=${S.target}></label>
+<label>Giorno di inizio del mese (1-28)<small>Il mese dell'app va da questo giorno al giorno prima del mese dopo (15 = dal 15 al 14).</small><input type=number min=1 max=28 data-p=sd data-num value=${S.sd}></label>
+<label>Ricarica Satispay: importo massimo (€)<small>Il giorno di inizio mese Satispay viene ricaricata dal conto principale fino a questo importo.</small><input type=number data-p=target data-num value=${S.target}></label>
 <label class=chk><input type=checkbox data-p=carry ${S.carry?'checked':''}>Riporta il saldo dal periodo precedente</label>
 <label class=chk><input type=checkbox data-p=dark ${S.dark?'checked':''}>Tema scuro</label></div>
 ${catEd('cats','Categorie di spesa')}${catEd('inc','Categorie di entrata')}
@@ -76,7 +76,7 @@ $('#sh').innerHTML=`<div class=box><label>Nome<input id=rn value="${esc(r.n)}"><
 <label>Accantona in un salvadanaio?<select id=rt><option value="">No</option><option value=pv ${r.to=='pv'?'selected':''}>${ACC.pv}</option><option value=pa ${r.to=='pa'?'selected':''}>${ACC.pa}</option></select></label>
 <label class=chk><input id=rp type=checkbox ${r.via?'checked':''}>Si paga con PayPal (solo filtro)</label>
 <div class=row>${r.id?'<button class=dng data-x=rdel>Elimina</button>':''}<button data-x=close>Annulla</button><button class=pri data-x=rsave>Salva</button></div></div>`;$('#sh').hidden=false}
-function render(){document.body.className=S.dark?'dark':'';$('#app').innerHTML={home,list,conti,rec,altro}[ui.tab]();document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==ui.tab))}
+function render(){document.body.className=(S.dark?'dark ':'')+(ui.tab=='home'?'hm':'');$('#app').innerHTML={home,list,conti,rec,altro}[ui.tab]();document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',b.dataset.t==ui.tab))}
 const close=()=>{$('#sh').hidden=true;ui.sh=null};
 const dl=(n,t,m)=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:m}));a.download=n;a.click()};
 document.addEventListener('click',e=>{const el=e.target.closest('[data-x]');if(!el){if(e.target.id=='sh')close();return}
@@ -84,6 +84,7 @@ const[a,g]=[el.dataset.x.split(':')[0],el.dataset.x.split(':').slice(1).join(':'
 if(a=='tab'){ui.tab=g;ui.acc=null;render()}else if(a=='view'){ui.view=g;render()}else if(a=='off'){ui.off+=+g;render()}
 else if(a=='cat')sheet({type:'exp',cat:g,acc:ui.view=='sat'?'sat':'main'});
 else if(a=='new')sheet({type:g,cat:g=='inc'?'stip':'altro',acc:ui.view=='sat'?'sat':'main'});
+else if(a=='pie'){const st=stats(ui.view,per(ui.off)),L=S.cats.filter(c=>st.bc[c.id]).sort((x,y)=>st.bc[y.id]-st.bc[x.id]);$('#sh').innerHTML=`<div class=box><div class=ctr><span>Entrate<b class=pos>${eur(st.i)}</b></span><span>Uscite<b class=neg>${eur(st.e)}</b></span><span>Differenza<b>${sg(st.i-st.e)}</b></span></div>${L.map(c=>`<div class=r><span class=ib>${ico(c)}</span><div>${esc(c.n)}</div><b>${eur(st.bc[c.id])} · ${Math.round(st.bc[c.id]/st.e*100)}%</b></div>`).join('')||'<p class=help>Nessuna spesa in questo periodo.</p>'}<button data-x=close>Chiudi</button></div>`;$('#sh').hidden=false}
 else if(a=='sal')sheet({type:'inc',cat:'stip',acc:'main'});
 else if(a=='edit'){const t=S.tx.find(x=>x.id==g);if(t.type=='top'){if(confirm('Eliminare questa ricarica? Verrà ricalcolata solo se la cancelli e cambi la data.')){S.tx=S.tx.filter(x=>x!=t);save();render()}}else sheet({...t})}
 else if(a=='stype')sheet({...gather(),type:g,cat:undefined,acc:$('#fk').value});
@@ -105,8 +106,9 @@ else if(a=='reset'&&confirm('Cancellare TUTTI i dati? Fai prima un backup.')){S=
 document.addEventListener('change',e=>{const el=e.target;if(el.id=='imp'){const f=el.files[0];if(!f)return;f.text().then(x=>{try{const s=JSON.parse(x);if(!s.tx)throw 0;S=s;save();gen();render()}catch(err){alert('File non valido.')}});return}
 const p=el.dataset.p;if(!p)return;let v=el.type=='checkbox'?el.checked:el.dataset.num!==undefined?+el.value:el.value;
 if(p=='@flt'){ui.flt=v;render();return}
+if(p=='@view'){ui.view=v;render();return}
 if(p=='sd'){v=Math.min(28,Math.max(1,v||15))}
-const k=p.split('.');let o=S;k.slice(0,-1).forEach(x=>o=o[x]);o[k[k.length-1]]=v;save();if(p=='sd'||p=='carry'||p=='dark'||p=='target')render()});
+const k=p.split('.');let o=S;k.slice(0,-1).forEach(x=>o=o[x]);o[k[k.length-1]]=v;if(k[k.length-1]=='e')o.em=true;save();if(p=='sd'||p=='carry'||p=='dark'||p=='target')render()});
 let sx=0;document.addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true});
 document.addEventListener('touchend',e=>{if(ui.tab!='home'||!$('#sh').hidden)return;const d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>70){const o=ui.off+(d<0?1:-1);if(o>=-12&&o<=1){ui.off=o;render()}}});
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
