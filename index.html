@@ -1,28 +1,22 @@
 <!doctype html>
-<html lang="it">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<html lang="it"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Spese</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Spese">
-<meta name="theme-color" content="#183c34">
-<link rel="stylesheet" href="style.css">
-</head>
+<meta name="theme-color" content="#1f8a70">
+<link rel="stylesheet" href="style.css"></head>
 <body>
-<header id="hd">Spese</header>
-<main id="v"></main>
-<nav id="nav">
-<button data-a="t" data-v="home">Home</button>
-<button data-a="t" data-v="list">Elenco</button>
-<button data-a="t" data-v="conti">Conti</button>
-<button data-a="t" data-v="subs">Abbonamenti</button>
-<button data-a="t" data-v="more">Altro</button>
-</nav>
+<main id="app"></main>
 <div id="sh" hidden></div>
+<input type="file" id="imp" accept=".json" hidden>
+<nav>
+<button data-x="tab:home" data-t="home">🏠<span>Home</span></button>
+<button data-x="tab:list" data-t="list">📋<span>Elenco</span></button>
+<button data-x="tab:conti" data-t="conti">👛<span>Conti</span></button>
+<button data-x="tab:rec" data-t="rec">🔁<span>Abbonamenti</span></button>
+<button data-x="tab:altro" data-t="altro">⚙️<span>Altro</span></button>
+</nav>
 <script src="app.js"></script>
-</body>
-</html>
+</body></html>
