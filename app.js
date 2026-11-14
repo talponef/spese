@@ -27,12 +27,18 @@ if(t.type=='inc'){if(v!='sat')i+=t.a}else if(t.type=='exp'){if(v=='all'?(t.acc==
 const sal=v=='main'?(S.carry?bal('main',p.n):i-e-top):v=='sat'?bal('sat',p.n):(S.carry?bal('main',p.n)+bal('sat',p.n):i-e);return{e,i,bc,sal}}
 const catOf=t=>t.type=='top'?{e:'🔁',n:'Ricarica Satispay'}:(t.type=='inc'?S.inc:S.cats).find(c=>c.id==t.cat)||{e:'❓',n:'?'};
 const sg=n=>(n>=0?'':'−')+eur(Math.abs(n));
+const LIM=8;
+function chart(st){const tot=st.e,L=S.cats.filter(c=>st.bc[c.id]).sort((a,b)=>st.bc[b.id]-st.bc[a.id]);let ac=0;
+const bg=tot>0?'conic-gradient('+L.map(c=>{const s=ac/tot*100;ac+=st.bc[c.id];return `${c.c} ${s}% ${ac/tot*100}%`}).join(',')+')':'var(--ln)';
+const rest=L.slice(5).reduce((s,c)=>s+st.bc[c.id],0);
+return `<div class=pie><div class=donut style="background:${bg}"><b>${eur(tot)}</b></div><div class=leg>${tot>0?L.slice(0,5).map(c=>`<div><i style="background:${c.c}"></i>${c.e} ${esc(c.n)}<b>${Math.round(st.bc[c.id]/tot*100)}%</b></div>`).join('')+(rest?`<div><i style="background:#999"></i>Altre<b>${Math.round(rest/tot*100)}%</b></div>`:''):'Nessuna spesa in questo periodo.'}</div></div>`}
+function gridCats(st){const m=S.cats.length>LIM,vis=m?S.cats.slice(0,LIM-1):S.cats;return vis.map(c=>`<button data-x="cat:${c.id}"><i style="background:${c.c}33">${c.e}</i>${esc(c.n)}<b style="color:var(--tx)">${st.bc[c.id]?eur(st.bc[c.id]):''}</b></button>`).join('')+(m?`<button data-x="cat:${S.cats[LIM-1].id}"><i style="background:#90a4ae33">⋯</i>Altre</button>`:'')}
 function home(){const p=per(ui.off),v=ui.view,st=stats(v,p),hasInc=S.tx.some(t=>t.type=='inc'&&t.date>=p.s&&t.date<p.n);
 return `<div class=seg>${[['main','Principale'],['sat','Satispay'],['all','Tutto']].map(([k,l])=>`<button data-x="view:${k}" class="${v==k?'on':''}">${l}</button>`).join('')}</div>
 <div class=pn><button data-x="off:-1" ${ui.off<=-12?'disabled':''}>‹</button><b>${lab(p)}</b><button data-x="off:1" ${ui.off>=1?'disabled':''}>›</button></div>
 ${!hasInc&&v!='sat'&&ui.off==0?`<button class=warn data-x="sal">⚠️ Stipendio non ancora inserito per questo periodo. Tocca per aggiungerlo.</button>`:''}
 <div class=ctr><span>Entrate<b class=pos>${eur(st.i)}</b></span><span>Uscite<b class=neg>${eur(st.e)}</b></span><span>Differenza<b>${sg(st.i-st.e)}</b></span></div>
-<div class=grid>${S.cats.map(c=>`<button data-x="cat:${c.id}"><i style="background:${c.c}33">${c.e}</i>${esc(c.n)}<b style="color:var(--tx)">${st.bc[c.id]?eur(st.bc[c.id]):''}</b></button>`).join('')}</div>
+${chart(st)}<div class=grid>${gridCats(st)}</div>
 <div class=sal><div><small style="color:var(--mu)">Saldo</small><br><b class="${st.sal<0?'neg':''}" style="font-size:22px">${sg(st.sal)}</b></div><div class=bt><button style="background:#d9534f" data-x="new:exp">−</button><button style="background:#1f8a70" data-x="new:inc">+</button></div></div>`}
 function rowT(t,a){const c=catOf(t),d=a?delta(t,a):(t.type=='inc'?t.a:-t.a);return `<div class=r data-x="edit:${t.id}"><span style="font-size:24px">${c.e}</span><div>${esc(t.note||c.n)}<small>${t.date.split('-').reverse().join('/')} · ${ACC[t.acc]}${t.to?' → '+ACC[t.to]:''}</small></div><b class="${t.type=='top'&&!a?'':d<0?'neg':'pos'}">${t.type=='top'&&!a?'↔ '+eur(t.a):sg(d)}</b></div>`}
 function list(){const since=per(-(ui.flt-1)).s,L=S.tx.filter(t=>t.date>=since).reverse();
@@ -44,7 +50,7 @@ function rec(){const f=ui.rf,L=S.rec.filter(r=>f=='all'||(f=='pp'?r.via:r.acc==f
 return `<h2>Abbonamenti e ricorrenze</h2><p class=help>Si registrano da soli ogni volta che apri l'app, alla data giusta. Ogni voce esce dal conto scelto. "PayPal" è solo un filtro: l'importo scende comunque dal conto.</p>
 <div class=seg style="flex-wrap:wrap">${[['all','Tutti'],['main','Principale'],['sat','Satispay'],['pp','PayPal']].map(([k,l])=>`<button data-x="rf:${k}" class="${f==k?'on':''}">${l}</button>`).join('')}</div>
 <div class=card>${L.map(r=>`<div class=r data-x="rec:${r.id}"><span style="font-size:24px">${(S.cats.find(c=>c.id==r.cat)||{e:'🔁'}).e}</span><div>${esc(r.n)}<small>${ACC[r.acc]}${r.to?' → '+ACC[r.to]:''}${r.via?' · PayPal':''} · ${r.f=='m'?'ogni mese il '+r.d:'ogni '+['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'][r.d]}</small></div><b>${eur(r.a)}</b></div>`).join('')||'Nessuna voce.'}</div><button class=pri style="width:100%" data-x="rec:new">+ Nuova ricorrenza</button>`}
-function catEd(k,t){return `<details><summary>${t}</summary>${S[k].map((c,i)=>`<div class=ce><input data-p="${k}.${i}.e" value="${c.e}"><input data-p="${k}.${i}.n" value="${esc(c.n)}"><input type=color data-p="${k}.${i}.c" value="${c.c||'#90a4ae'}"><button data-x="catdel:${k}:${i}">🗑</button></div>`).join('')}<button style="margin-top:8px" data-x="catadd:${k}">+ Aggiungi</button></details>`}
+function catEd(k,t){return `<details><summary>${t}</summary>${S[k].map((c,i)=>`<div class=ce><input data-p="${k}.${i}.e" value="${c.e}"><input data-p="${k}.${i}.n" value="${esc(c.n)}"><input type=color data-p="${k}.${i}.c" value="${c.c||'#90a4ae'}"><button data-x="catup:${k}:${i}">▲</button><button data-x="catdel:${k}:${i}">🗑</button></div>`).join('')}<button style="margin-top:8px" data-x="catadd:${k}">+ Aggiungi</button></details>`}
 function altro(){return `<h2>Altro</h2><div class=card style="display:grid;gap:8px">
 <label>Giorno di inizio del mese (1-28)<input type=number min=1 max=28 data-p=sd data-num value=${S.sd}></label>
 <label>Ricarica Satispay: importo massimo (€)<input type=number data-p=target data-num value=${S.target}></label>
@@ -90,6 +96,7 @@ else if(a=='rf'){ui.rf=g;render()}else if(a=='rec')recSheet(g);
 else if(a=='rsave'){const n=parseFloat($('#ra').value.replace(',','.')),f=$('#rf2').value;if(!$('#rn').value||!(n>0))return alert('Inserisci nome e importo.');const old=S.rec.find(x=>x.id==ui.sh.rec),r={id:old?old.id:'u'+Date.now(),n:$('#rn').value,a:n,acc:$('#rk').value,cat:$('#rc').value,f,d:f=='m'?Math.min(28,Math.max(1,+$('#rd').value||15)):+$('#rw').value,to:$('#rt').value||undefined,via:$('#rp').checked?'pp':undefined,from:old?old.from:ymd(new Date()),last:old?old.last:undefined};S.rec=S.rec.filter(x=>x!=old).concat(r);save();close();gen();render()}
 else if(a=='rdel'){if(confirm('Eliminare la ricorrenza? I movimenti già registrati restano.')){S.rec=S.rec.filter(x=>x.id!=ui.sh.rec);save();close();render()}}
 else if(a=='catadd'){S[g].push({id:'c'+Date.now(),n:'Nuova',e:'🏷️',c:'#90a4ae'});save();render();document.querySelector('details:last-of-type')}
+else if(a=='catup'){const[k,s]=g.split(':'),j=+s;if(j>0){[S[k][j-1],S[k][j]]=[S[k][j],S[k][j-1]];save();render()}}
 else if(a=='catdel'){const[k,i]=g.split(':');if(confirm('Eliminare la categoria? I movimenti già registrati restano ma senza icona.')){S[k].splice(+i,1);save();render()}}
 else if(a=='exp')dl('spese-backup-'+ymd(new Date())+'.json',JSON.stringify(S),'application/json');
 else if(a=='csv')dl('spese-'+ymd(new Date())+'.csv','Data;Tipo;Conto;Verso;Categoria;Importo;Nota\n'+S.tx.map(t=>[t.date,t.type,ACC[t.acc],t.to?ACC[t.to]:'',catOf(t).n,String(t.a).replace('.',','),'"'+(t.note||'').replace(/"/g,'""')+'"'].join(';')).join('\n'),'text/csv');
